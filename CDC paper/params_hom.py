@@ -10,10 +10,8 @@ window_num = int(time_horizon // window_length)                             # ti
 T = .01                                                                     # sample time
 A = np.array([[1, T], [0, 1]])                                              # linearized state dynamics
 Q = 1e3*np.array([[0, 0], [0, T ** 2]])                                     # process noise covariance matrix
-trP_bins = 5                                                                # bins for state quantization
 
 # Smart sensors
-sensors = []                                                                # all sensors
 N = 4                                                                       # amount of sensors
 C = np.array([1, 0])                                                        # state-output matrix
 C = np.transpose(C[:, np.newaxis])                                        
@@ -25,4 +23,4 @@ enabled_at_start = False                                                    # se
 comm_del = 1
 sensor = Sensor(del_raw, V_raw, del_proc, V_proc, enabled_at_start, C, \
     comm_del, comm_del)                                                     # network sensor
-sensors = [sensor.copy() for _ in range(N)]
+sensors = [sensor.copy() for _ in range(N)]                                 # all sensors

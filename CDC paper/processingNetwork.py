@@ -137,7 +137,6 @@ class ProcessingNetwork:
     ### Collect sensory data and update Kalman predictor
     def _collect_data(self, sensor, t):
         new_data_collected = False
-
         if sensor.has_new_data():
             delay, info_mat = sensor.new_data()
             if delay < self.stored_delays[0]:
@@ -217,13 +216,8 @@ class ProcessingNetwork:
     ### Kalman predictor - update with measurement
     def _update(self, P0, info_mat):
         if self.n > 1:
-            try:
-                return np.linalg.inv(np.linalg.inv(P0) + info_mat)
-            
-            except:
-                print(P0)
-                print(info_mat)
-                
+            return np.linalg.inv(np.linalg.inv(P0) + info_mat)
+        
         else:
             return (P0**-1 + info_mat)**-1
 
@@ -276,6 +270,6 @@ class ProcessingNetwork:
 
 
     ### Set state space quantization
-    def set_discretization(self, a):
-        self.state_bins = a
-        self.state_dim = len(a) + 1
+    def set_discretization(self, bins):
+        self.state_bins = bins
+        self.state_dim = len(bins) + 1

@@ -68,7 +68,7 @@ for action in range(action_space_dim):
         Ma_list.append(val)
     MA_pi_custom.append(Ma_list)
 
-### Plot and save data
+### Plot simulation results
 print('Cost with Q-learning policy:', trP_avg_pi_qlearning)
 for action in range(action_space_dim):
     print(f'Cost with static policy All-{action}:', trP_avg_pi_custom[action])
