@@ -7,3 +7,5 @@ run _test_custom_policies_ and _compare_policies_.
 
 To train a Q-learnig policy with new data,
 run _qlearning_.
+
+Training data are automatically saved in the folder "experiments".
