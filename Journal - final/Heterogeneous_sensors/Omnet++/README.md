@@ -1,5 +1,5 @@
 # ProcessingNetworks-RL
-Code for simulations in Journal paper "	to compute or not to compute?adaptive smart sensing in resource-constrained edge computing" by L. Ballotta, G. Peserico, F. Zanini and P. Dini.
+Code for simulations in paper "To compute or not to compute? Adaptive smart sensing in resource-constrained edge computing" by L. Ballotta, G. Peserico, F. Zanini and P. Dini.
 
 ## How to run
 
