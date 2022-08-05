@@ -13,8 +13,8 @@ you can run omnetpp.ini
 
 to choose if train the system or use only the policy, in file UdpEchoAppMLfW_eter2.cc there are the following parameters:
 
-'''
+```
 bool usepolicy_e = true;  //to use pre-trained policy
 bool singleEpisode = true; // to run a single episode (to evaluate the policy)
 int policy_e[5] = {89,89,88,71,70}; //to force a custom policy
-'''
+```
