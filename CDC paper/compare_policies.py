@@ -14,7 +14,7 @@ with open(os.path.join(dir_path, 'uniform_discretization.pickle'), 'rb') as file
     bins = pickle.load(file)
 
 net = ProcessingNetwork(sensors, A, Q, window_length, window_num)
-net.set_discretization(bins)
+net.set_quantization(bins)
 state_space_dim = net.state_dim
 action_space_dim = net.action_dim
 

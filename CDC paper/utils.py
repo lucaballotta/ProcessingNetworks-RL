@@ -2,6 +2,7 @@ import os
 import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 ### Utility functions to store and plot data
 

@@ -21,7 +21,7 @@ if __name__ == '__main__':
     
     # compute or load discretization
     print('Discretizing state space...')
-    bins = net.get_uniform_discretization(dir_path)
+    bins = net.get_uniform_quantization(dir_path)
     print(f'Discretization: {bins}')
     state_space_dim = net.state_dim
     action_space_dim = net.action_dim
