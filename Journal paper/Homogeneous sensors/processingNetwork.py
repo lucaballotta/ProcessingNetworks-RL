@@ -438,7 +438,7 @@ class ProcessingNetwork:
                 with open(os.path.join(where, 'uniform_discretization.pickle'), 'rb') as file:
                     print('A uniform discretization has already been found!')
                     bins = pickle.load(file)
-                    self.set_discretization(bins)
+                    self.set_quantization(bins)
                     return bins
                                     
             except FileNotFoundError:
