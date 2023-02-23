@@ -1,15 +1,18 @@
-from math import ceil
 import os.path
 import numpy as np
-from numpy.core.fromnumeric import size
 import pickle
+
+from math import ceil
+from typing import List, Tuple
+from numpy.core.fromnumeric import size
+
+from sensor import Sensor
 
 # Environment: star network with sensors transmitting data to master node
 
 class ProcessingNetwork:
     
-
-    def __init__(self, sensors, A, Q, window_length, window_num):
+    def __init__(self, sensors: List[Sensor], A: np.ndarray, Q: np.ndarray, window_length: int, window_num: int):
         
         self.sensors = sensors                        # list of sensors transmitting to master
         self.sens_num = len(self.sensors)             # amounts of sensors
@@ -48,9 +51,9 @@ class ProcessingNetwork:
 
 
     ### Apply environment transition
-    def step(self, action_ID):
-
+    def step(self, action_ID: int) -> Tuple[int, float, bool]:
         '''
+        Applies environment transition.
         Sensors are set in the self.sensors list as follows:
 
         [ 0|1| ...|P-1|...|T-1| ...|N -1]
@@ -60,9 +63,21 @@ class ProcessingNetwork:
             self.proc_sens = P = #PROCESSING
             self.tx_sens = T = #PROCESSING + #RAW
         
+        Input
+        -----
+        action_ID: int,
+            code for number of sensors in raw, sleep, and processing mode 
+            
+        Returns
+        -------
+        state: int,
+            updated bin of the trace of the estimation error covariance matrix (quantized)
+        reward: float,
+            average trace of the estimation error covariance matrix across episode (time window)
+        done: bool,
+            True if all time windows within one time horizon have been run
         '''
-
-        # decode action from map
+        # decode action from action map
         action = self.action_map[action_ID]
         tx_sens_new = action % 100
         proc_sens_new = action // 100
@@ -70,28 +85,28 @@ class ProcessingNetwork:
         # update sensor modes
         if proc_sens_new < self.proc_sens:
             for to_enable_raw in range(proc_sens_new, self.proc_sens):
-                self.sensors[to_enable_raw].enable_raw()
+                self.sensors[to_enable_raw].set_raw()
                 self.sensors[to_enable_raw].reset()
 
         if tx_sens_new < self.tx_sens:
             
             # set sensors asleep
             for to_disable in range(tx_sens_new, self.tx_sens):
-                self.sensors[to_disable].disable()
+                self.sensors[to_disable].set_sleep()
                 self.sensors[to_disable].reset()
        
         elif tx_sens_new > self.tx_sens:
             
             # set sensors raw 
             for to_enable_raw in range(self.tx_sens, tx_sens_new):
-                self.sensors[to_enable_raw].enable_raw()
+                self.sensors[to_enable_raw].set_raw()
                 self.sensors[to_enable_raw].reset()
         
         if proc_sens_new > self.proc_sens:
             
             # set sensors processing
             for to_enable_proc in range(self.proc_sens, proc_sens_new):
-                self.sensors[to_enable_proc].enable_process()
+                self.sensors[to_enable_proc].set_proc()
                 self.sensors[to_enable_proc].reset()
 
         self.tx_sens = tx_sens_new
@@ -109,8 +124,20 @@ class ProcessingNetwork:
         return state, reward, done
 
 
-    ## Reset environment
-    def reset(self, action_init=None):
+    def reset(self, action_init: int=None) -> int:
+        '''
+        Resets environment.
+        
+        Input
+        -----
+        action_init: int,
+            code for initial number of sensors in raw, sleep, and processing mode
+            
+        Returns
+        -------
+        state_init: int,
+            initial bin of the trace of the estimation error covariance matrix (quantized)
+        '''
         self.stored_delays = [np.inf for _ in range(self.STORAGE_DIM)]
         self.stored_info_mat = [np.zeros((self.n, self.n)) for _ in range(self.STORAGE_DIM)]
         self.stored_cov = [self.P0.copy() for _ in range(self.STORAGE_DIM)]
@@ -127,15 +154,15 @@ class ProcessingNetwork:
             self.proc_sens = action // 100
            
         for to_enable_process in range(self.proc_sens):
-            self.sensors[to_enable_process].enable_process()
+            self.sensors[to_enable_process].set_proc()
             self.sensors[to_enable_process].reset()
                 
         for to_enable_raw in range(self.proc_sens, self.tx_sens):
-            self.sensors[to_enable_raw].enable_raw()
+            self.sensors[to_enable_raw].set_raw()
             self.sensors[to_enable_raw].reset()
         
         for to_disable in range(self.tx_sens, self.sens_num):
-            self.sensors[to_disable].disable()
+            self.sensors[to_disable].set_sleep()
             self.sensors[to_disable].reset()
         
         self.msgs_to_process = 0
@@ -148,13 +175,30 @@ class ProcessingNetwork:
         
         return state_init
     
-    ### Get history of error variance
-    def get_Ps(self):
-        return np.array(self.Ps.copy())
+    def get_Ps(self) -> np.ndarray:
+        '''
+        Get history of error variance.
+        
+        Returns
+        -------
+        Ps_array: numpy array,
+            all values of the trace of the estimation error variance recorded since the latest reset.
+        '''
+        Ps_array = np.array(self.Ps.copy())
+        return Ps_array
 
 
-    ### Compute reward for one window
-    def _compute_reward(self):
+    def _compute_reward(self) -> Tuple[int, float]:
+        '''
+        Compute reward for one time window.
+        
+        Returns
+        -------
+        state: int,
+            current bin of the trace of the estimation error covariance matrix (quantized)
+        reward: float,
+            average trace of the estimation error covariance matrix across episode (time window)
+        '''
         avg_err_var = 0
         processing_time = 0
         time_curr = self.window_curr * self.window_length
@@ -211,8 +255,24 @@ class ProcessingNetwork:
         return state, reward
 
 
-    ### Collect sensory data and update Kalman predictor
-    def _collect_data(self, sensor, t):
+    def _collect_data(self, sensor: Sensor, t: int) -> Tuple[bool, int]:
+        '''
+        Collects sensory data and updates state estimate and estimation error covariance matrix.
+        
+        Input
+        -----
+        sensor: Sensor,
+            smart sensor in the network
+        t: int,
+            current time
+            
+        Returns
+        -------
+        new_data: bool,
+            True if new data have been transmitted from sensor
+        new_data_index: int,
+            position of new measurement
+        '''
         new_data = False
         new_data_index = None
         if sensor.has_new_data():
@@ -278,41 +338,101 @@ class ProcessingNetwork:
         return new_data, new_data_index
 
 
-    ### Kalman predictor - open loop
-    def _open_loop(self, P0, T):
-        if T == 0:
-            return P0
-
-        Q_tot = self.Q.copy()
-        for t in range(1, T):
-            A_t = np.linalg.matrix_power(self.A, t)
-            Q_tot += np.matmul(A_t, np.matmul(self.Q, np.transpose(A_t)))
-
-        A_T = np.linalg.matrix_power(self.A, T)
+    def _open_loop(self, P0: np.ndarray, T: int) -> np.ndarray:
+        '''
+        Runs open loop step of Kalman filter.
         
-        return np.matmul(A_T, np.matmul(P0, np.transpose(A_T))) + Q_tot
-
-
-    ### Kalman predictor - update with measurement
-    def _update(self, P0, info_mat):
-        if self.n > 1:
-            return np.linalg.inv(np.linalg.inv(P0) + info_mat)
-                
+        Input
+        -----
+        P0: numpy array,
+            initial estimation error covariance matrix
+        T: int,
+            numer of open-loop steps
+            
+        Returns
+        -------
+        P_t: numpy array,
+            estimation error covariance matrix after T open-loop steps
+        '''
+        if T == 0:
+            P_T = P0
+            
         else:
-            return (P0**-1 + info_mat)**-1
+            Q_tot = self.Q.copy()
+            for t in range(1, T):
+                A_t = np.linalg.matrix_power(self.A, t)
+                Q_tot += np.matmul(A_t, np.matmul(self.Q, np.transpose(A_t)))
+
+            A_T = np.linalg.matrix_power(self.A, T)
+            P_T = np.matmul(A_T, np.matmul(P0, np.transpose(A_T))) + Q_tot
+        
+        return P_T
 
 
-    ### State quantization
-    def _quantize(self, err_var):
+    def _update(self, P0: np.ndarray, info_mat: np.ndarray) -> np.ndarray:
+        '''
+        Runs update with measurement of Kalman filter.
+        
+        Input
+        -----
+        P0: numpy array,
+            initial estimation error covariance matrix
+        info_mat: numpy array,
+            information matrix associated with measurement
+            
+        Returns
+        -------
+        P_update: numpy array,
+            estimation error covariance matrix after update with measurement
+        '''
+        if self.n > 1:
+            P_update = np.linalg.inv(np.linalg.inv(P0) + info_mat)
+        
+        else:
+            P_update = (P0**-1 + info_mat)**-1
+            
+        return P_update
+
+
+    def _quantize(self, err_var: float) -> int:
+        '''
+        Find quantization bin corresponding to the trace of the estimation error covariance matrix.
+        
+        Input
+        -----
+        err_var: float,
+            trace of the estimation error covariance matrix
+            
+        Returns
+        -------
+        bin: int,
+            quantization bin corresponding to err_var
+        '''
         for i in range(self.state_dim-1):
             if err_var < self.state_bins[i]:
                 return i
                 
-        return self.state_dim-1
+        return self.state_dim - 1
 
 
-    ### Quantize domain of P_k
-    def get_uniform_discretization(self, where, save=True, replace=False):
+    def get_uniform_quantization(self, where: str, save: bool=True, replace: bool=False) -> List[float]:
+        '''
+        Quantize domain of trace of estimation error covariance matrix.
+        
+        Input
+        -----
+        where: string,
+            path to store bins
+        save: bool,
+            True if bins should be saved
+        replace: bool,
+            True if previously stored bins should be replaced
+            
+        Returns
+        -------
+        bins: list[float],
+            quantization thresholds
+        '''
         if not replace:
             try:
                 with open(os.path.join(where, 'uniform_discretization.pickle'), 'rb') as file:
@@ -333,7 +453,14 @@ class ProcessingNetwork:
         return bins
 
 
-    ### Set state space quantization
-    def set_discretization(self, bins):
+    def set_quantization(self, bins: List[float]):
+        '''
+        Set state space quantization for the environment.
+        
+        Input
+        -----
+        bins: list[float],
+            thresholds of bins thaqt define the state space of the environment         
+        '''
         self.state_bins = bins
         self.state_dim = len(bins) + 1

@@ -67,7 +67,7 @@ class Sensor:
         if self.sampling_counter == 0:
             if not self.first_meas:
                 
-                # transmit latest measurement
+                # transmit latest available measurement
                 self.data_in_delivery = True
                 self.data_in_delivery_delay_info = self.curr_delay_info
                 self.time_to_delivery = self.comm_delay

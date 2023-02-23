@@ -1,9 +1,11 @@
 import os
 import pickle
-from datetime import datetime
-from processingNetwork import ProcessingNetwork
-from tqdm import trange
 import matplotlib.pyplot as plt
+
+from datetime import datetime
+from tqdm import trange
+
+from processingNetwork import ProcessingNetwork
 from utils import *
 from params_hom import *
 
@@ -21,7 +23,7 @@ if __name__ == '__main__':
     
     # compute or load discretization
     print('Discretizing state space...')
-    bins = net.get_uniform_discretization(dir_path)
+    bins = net.get_uniform_quantization(dir_path)
     print(f'Discretization: {bins}')
     state_space_dim = net.state_dim
     action_space_dim = net.action_dim

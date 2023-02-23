@@ -2,11 +2,12 @@ import os
 import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 ### Utility functions to store and plot data
 
 
-def path(directory='experiments', verbosity=0):
+def path(directory: str='experiments', verbosity: int=0):
     code_path = os.getcwd()
     storing_path = os.path.join(code_path, directory)
     if not os.path.isdir(storing_path):
@@ -16,14 +17,14 @@ def path(directory='experiments', verbosity=0):
     return storing_path
 
 
-def store_qtable(where, table, name, when, verbosity=0):
+def store_qtable(where: str, table: np.ndarray, name: str, when: str, verbosity: int=0):
     if verbosity > 0:
         print(f'Storing {name}...')
     with open(os.path.join(where, name + f'{when}.pickle'), 'wb') as door:
         pickle.dump(table, door)
 
 
-def load_qtable(gen_dir, states, actions, table='zeros'):
+def load_qtable(gen_dir: str, states: int, actions: int, table: str='zeros'):
     if table == 'zeros':
         try:
             with open(os.path.join(gen_dir, 'zero_qtables.pickle'), 'rb') as door:
@@ -84,7 +85,7 @@ def load_qtable(gen_dir, states, actions, table='zeros'):
             print('Wrong path or file or name!')
 
 
-def plot_qtable(table, name, states, actions, savetype='pdf'):
+def plot_qtable(table: np.ndarray, name: str, states: int, actions: int, savetype: str='pdf'):
     ax = sns.heatmap(table, xticklabels=range(actions), yticklabels=range(states))
     ax.set_ylabel('State')
     ax.set_xlabel('Action')

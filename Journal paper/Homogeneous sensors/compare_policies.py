@@ -1,12 +1,15 @@
-from params_hom import *  # import parameters
-from processingNetwork import ProcessingNetwork
-from matplotlib import pyplot as plt
 import os
 import pickle
+
+from typing import List
+from matplotlib import pyplot as plt
+
+from params_hom import *  # import parameters
+from processingNetwork import ProcessingNetwork
 from utils import *
 
 
-def testPolicy(net, policy):
+def testPolicy(net: ProcessingNetwork, policy: List[int]):
 
     # q-table policy
     obs = net.reset()  # reset env
@@ -56,7 +59,7 @@ with open(os.path.join(dir_path, 'uniform_discretization.pickle'), 'rb') as file
     bins = pickle.load(file)
         
 net = ProcessingNetwork(sensors, A, Q, window_length, window_num)
-net.set_discretization(bins)
+net.set_quantization(bins)
 state_space_dim = net.state_dim
 action_space_dim = net.action_dim
 

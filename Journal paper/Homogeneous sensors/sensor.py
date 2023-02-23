@@ -1,9 +1,13 @@
+from typing import Tuple
 import numpy as np
 
 class Sensor:
     
-    def __init__(self, raw_delay, raw_V, proc_delay, proc_V, enabled, C, raw_comm_del, proc_comm_del):
+    def __init__(self, raw_delay: int, raw_V: np.ndarray, proc_delay: int, proc_V: np.ndarray, sleep: bool, C: np.ndarray, raw_comm_del: int, proc_comm_del: int):
         self.raw_delay = raw_delay
+        self.proc_delay = proc_delay
+        
+        # compute information matrices for Kalman filter
         try:
             self.raw_V = raw_V.copy()
             raw_V_inv = np.linalg.inv(raw_V)
@@ -13,7 +17,6 @@ class Sensor:
             self.raw_V = raw_V
             self.raw_info_mat = np.matmul(np.transpose(C),C) / raw_V
             
-        self.proc_delay = proc_delay
         try:
             self.proc_V = proc_V.copy()
             proc_V_inv = np.linalg.inv(proc_V)
@@ -23,15 +26,15 @@ class Sensor:
             self.proc_V = proc_V
             self.proc_info_mat = np.matmul(np.transpose(C),C) / proc_V
         
-        self.processing = False                                             # true if processing
-        self.enabled = enabled                                              # false if sleeping
+        self.processing = False                                             # True if processing
+        self.sleep = sleep                                                  # True if sleeping
         self.C = C.copy()                                                   # state-to-output transformation
         self.raw_comm_delay = raw_comm_del
         self.proc_comm_delay = proc_comm_del
 
-        if self.enabled:
+        if not self.sleep:
             
-            # default for enabled: raw mode
+            # default: raw mode
             self.sample_time = self.raw_delay                              
             self.comm_delay = self.raw_comm_delay
             self.delay_info = self.raw_delay + self.raw_comm_delay, self.raw_info_mat
@@ -52,25 +55,27 @@ class Sensor:
         
         
     def copy(self):
-        return Sensor(self.raw_delay, self.raw_V, self.proc_delay, self.proc_V, self.enabled, self.C.copy(), \
-            self.raw_comm_delay, self.proc_comm_delay)
+        return Sensor(self.raw_delay, self.raw_V, self.proc_delay, self.proc_V, self.sleep, 
+                      self.C.copy(), self.raw_comm_delay, self.proc_comm_delay)
         
         
-    ### Collect measurement, process and/or transmit
     def time_step(self):
-
+        '''
+        Runs one time step of simulation.
+        If the sensor can acquire new data,
+        simulates acquisition of a new sample and starts counter for delayed transmission (computation and communication).
+        '''
         if self.sampling_counter == 0:
-            
             if not self.first_meas:
                 
-                # transmit acquired measurement
+                # transmit latest available measurement
                 self.data_in_delivery = True
                 self.data_in_delivery_delay_info = self.curr_delay_info
                 self.time_to_delivery = self.comm_delay
 
             else:
 
-                # no measurement available at start
+                # sample first measurement (no data are transmitted)
                 self.first_meas = not(self.first_meas)
 
             # acquire new measurement
@@ -79,13 +84,15 @@ class Sensor:
 
         else:
 
-            # continue ongoing acquisition
+            # continue data acquisition/processing
             self.sampling_counter -= 1
 
         if self.data_in_delivery:
+            
+            # a measurement is currently being transmitted
             if self.time_to_delivery == 0:
 
-                # measurement ready to be collected
+                # the latest transmitted measurement is received
                 self.data_in_delivery = not(self.data_in_delivery)
                 self.delivered_delay_info = self.data_in_delivery_delay_info
                 self.data_delivered = True
@@ -96,12 +103,24 @@ class Sensor:
                 self.time_to_delivery -= 1
 
 
-    def has_new_data(self):
+    def has_new_data(self) -> bool:
+        '''
+        Returns True if a new measurement has been received.
+        '''
         return self.data_delivered
         
         
-    def new_data(self):
-
+    def new_data(self) -> Tuple[int, np.ndarray]:
+        '''
+        Returns latest data transmitted.
+        Raises BufferError if there are no new data to collect.
+        
+        Returns
+        -------
+        delivered_delay_info: tuple[int, np.array],
+                    tuple with delay (computation plus communication) and information matrix of received measurement
+         
+        '''
         # new data can be collected if delivered and not yet collected
         if self.data_delivered:
             self.data_delivered = False
@@ -110,26 +129,35 @@ class Sensor:
         raise BufferError('No new data to collect')
     
     
-    def enable_process(self):
-        if not(self.enabled) or not(self.processing):
-            self.enabled = True
+    def set_proc(self):
+        '''
+        Sets sensor in processing mode.
+        '''
+        if not(self.sleep) or not(self.processing):
+            self.sleep = True
             self.processing = True
             self.sample_time = self.proc_delay
             self.comm_delay = self.proc_comm_delay
             self.delay_info = self.proc_delay + self.proc_comm_delay, self.proc_info_mat
 
 
-    def enable_raw(self):
-        if not(self.enabled) or (self.enabled and self.processing):
-            self.enabled = True
+    def set_raw(self):
+        '''
+        Sets sensor in raw mode.
+        '''
+        if not(self.sleep) or (self.sleep and self.processing):
+            self.sleep = True
             self.processing = False
             self.sample_time = self.raw_delay
             self.comm_delay = self.raw_comm_delay
             self.delay_info = self.raw_delay + self.raw_comm_delay, self.raw_info_mat
 
 
-    def disable(self):
-        self.enabled = False
+    def set_sleep(self):
+        '''
+        Sets sensor in sleep mode.
+        '''
+        self.sleep = False
         self.sample_time = np.inf
 
 
