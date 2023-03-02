@@ -28,3 +28,7 @@ Journal paper:
   run _qlearning_.
 
 Training data are automatically saved in the folder "experiments".
+
+## Link to papers;
+- CDC paper: https://arxiv.org/abs/2204.00703
+- Preprint: https://arxiv.org/abs/2209.02166
