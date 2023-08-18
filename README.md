@@ -32,13 +32,11 @@ Journal paper:
 Training data are automatically saved in the folder "experiments".
 
 ## Link to papers
-- CDC paper: https://arxiv.org/abs/2204.00703
-  
+- CDC paper: https://arxiv.org/abs/2204.00703__  
   Please cite as: L. Ballotta, G. Peserico, F. Zanini,
   "A Reinforcement Learning Approach to Sensing Design in Resource-Constrained Wireless Networked Control Systems,"
   Proceedings of the IEEE Conference on Decision and Control (CDC), 2022.
-- Journal article: https://arxiv.org/abs/2209.02166
-  
+- Journal article: https://arxiv.org/abs/2209.02166__  
   Please cite as: L. Ballotta, G. Peserico, F. Zanini, P. Dini,
   "To Compute or not to Compute? Adaptive Smart Sensing in Resource-Constrained Edge Computing,"
   in IEEE Transactions on Network Science and Engineering, 2023.
