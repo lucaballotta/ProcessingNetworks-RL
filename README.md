@@ -1,14 +1,16 @@
 # ProcessingNetworks-RL
-Code for simulations in CDC paper "A Reinforcement Learning Approach to Sensing Design in Resource-Constrained Wireless Networked Control Systems" by L. Ballotta, G. Peserico, and F. Zanini (folder "CDC paper") and in preprint "To Compute or not to Compute? Adaptive Smart Sensing in Resource-Constrained Edge Computing" by L. Ballotta, G. Peserico, F. Zanini, and P. Dini (folder "Journal paper").
+Code for simulations in CDC'22 paper "A Reinforcement Learning Approach to Sensing Design in Resource-Constrained Wireless Networked Control Systems" by L. Ballotta, G. Peserico, and F. Zanini (folder "CDC paper") and in IEEE TNSE article "To Compute or not to Compute? Adaptive Smart Sensing in Resource-Constrained Edge Computing" by L. Ballotta, G. Peserico, F. Zanini, and P. Dini (folder "Journal paper").
 
 ## How to run
 CDC paper: 
-- To test and plot behavior of pre-trained and custom policies,
+- to train a Q-learning sensing policy,
+set desired parameters in _params_hom_ and run _qlearning_;
+- to test and plot behavior of pre-trained and custom policies,
 run _test_custom_policies_ and _compare_policies_.
 
 Journal paper:
-- Homogeneous sensors: same as CDC paper
-- Heterogeneous sensors: 
+- Homogeneous sensors: same as CDC paper.
+- Heterogeneous sensors:
   - To train a Q-learnig policy with new data:
     1. copy files in "udpapp" folder and paste them in your omnet++ udpapp _$your_omnet_dir\samples\inet\src\inet\applications\udpapp_;
     2. copy "MLForWirelessProject_eter2" folder and paste it in your omnet++ wireless example _$your_omnet_dir\samples\inet\examples\wireless_.
@@ -31,4 +33,10 @@ Training data are automatically saved in the folder "experiments".
 
 ## Link to papers
 - CDC paper: https://arxiv.org/abs/2204.00703
-- Preprint: https://arxiv.org/abs/2209.02166
+  Please cite as: L. Ballotta, G. Peserico, F. Zanini,
+  "A Reinforcement Learning Approach to Sensing Design in Resource-Constrained Wireless Networked Control Systems,"
+  Proceedings of the IEEE Conference on Decision and Control (CDC), 2022.
+- Journal article: https://arxiv.org/abs/2209.02166
+  Please cite as: L. Ballotta, G. Peserico, F. Zanini, P. Dini,
+  "To Compute or not to Compute? Adaptive Smart Sensing in Resource-Constrained Edge Computing,"
+  in IEEE Transactions on Network Science and Engineering, 2023.
