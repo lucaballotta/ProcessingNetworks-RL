@@ -33,11 +33,14 @@ Training data are automatically saved in the folder "experiments".
 
 ## Link to papers
 - CDC paper: https://ieeexplore.ieee.org/document/9993151
+  
   Please cite as: L. Ballotta, G. Peserico, F. Zanini,
   "A Reinforcement Learning Approach to Sensing Design in Resource-Constrained Wireless Networked Control Systems,"
   Proceedings of the IEEE Conference on Decision and Control (CDC), 2022.
+  
   Freely available at https://arxiv.org/abs/2204.00703
-- Journal article: https://ieeexplore.ieee.org/document/10225419  
+- Journal article: https://ieeexplore.ieee.org/document/10225419
+  
   Please cite as: L. Ballotta, G. Peserico, F. Zanini, P. Dini,
   "To Compute or not to Compute? Adaptive Smart Sensing in Resource-Constrained Edge Computing,"
   in IEEE Transactions on Network Science and Engineering, 2023.
