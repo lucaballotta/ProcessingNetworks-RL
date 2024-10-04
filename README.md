@@ -32,7 +32,7 @@ Journal paper:
 Training data are automatically saved in the folder "experiments".
 
 ## Link to papers
-- CDC paper: https://ieeexplore.ieee.org/document/9993151
+- Conference paper: https://ieeexplore.ieee.org/document/9993151
   
   Please cite as: L. Ballotta, G. Peserico, F. Zanini,
   "A Reinforcement Learning Approach to Sensing Design in Resource-Constrained Wireless Networked Control Systems,"
