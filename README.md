@@ -33,14 +33,35 @@ Training data are automatically saved in the folder "experiments".
 
 ## Link to papers
 - Conference paper: https://ieeexplore.ieee.org/document/9993151
-  
-  Please cite as: L. Ballotta, G. Peserico, F. Zanini,
-  "A Reinforcement Learning Approach to Sensing Design in Resource-Constrained Wireless Networked Control Systems,"
-  Proceedings of the IEEE Conference on Decision and Control (CDC), 2022.
-  
+
   Freely available at https://arxiv.org/abs/2204.00703
-- Journal article: https://ieeexplore.ieee.org/document/10225419
   
-  Please cite as: L. Ballotta, G. Peserico, F. Zanini, P. Dini,
-  "To Compute or not to Compute? Adaptive Smart Sensing in Resource-Constrained Edge Computing,"
-  in IEEE Transactions on Network Science and Engineering, 2023.
+  Citation:
+  ```
+  @INPROCEEDINGS{9993151,
+    author={Ballotta, Luca and Peserico, Giovanni and Zanini, Francesco},
+    booktitle={2022 IEEE 61st Conference on Decision and Control (CDC)}, 
+    title={A Reinforcement Learning Approach to Sensing Design in Resource-Constrained Wireless Networked Control Systems}, 
+    year={2022},
+    volume={},
+    number={},
+    pages={3914-3919},
+    doi={10.1109/CDC51059.2022.9993151}
+  }
+  ```
+  
+- Journal article (open access): https://ieeexplore.ieee.org/document/10225419
+  
+  Citation:
+  ```
+  @ARTICLE{10225419,
+    author={Ballotta, Luca and Peserico, Giovanni and Zanini, Francesco and Dini, Paolo},
+    journal={IEEE Transactions on Network Science and Engineering}, 
+    title={To Compute or Not to Compute? Adaptive Smart Sensing in Resource-Constrained Edge Computing}, 
+    year={2024},
+    volume={11},
+    number={1},
+    pages={736-749},
+    doi={10.1109/TNSE.2023.3306202}
+  }
+  ```
